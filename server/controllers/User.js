@@ -1,18 +1,37 @@
+const bcrypt = require("bcrypt");
+
 const User = require("../models/User");
 
-const getUsers = async (req, res) => {
-    User.find()
-        .then((users) => res.json(users))
-        .catch((err) => res.send(err));
+const Login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        const requestedUser = await User.findOne({ username }).exec();
+        if (!requestedUser) {
+            return res.json({ authenticated: false, reason: "Invalid Username" });
+        }
+
+        const match = await bcrypt.compare(password, requestedUser.password);
+        if (match) {
+            res.json({ authenticated: true });
+        } else {
+            res.json({ authenticated: false, reason: "Incorrect Password" });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 };
 
-const createUser = async (req, res) => {
+const Register = async (req, res) => {
+    const hashedPassword = await bcrypt.hash(req.body.password, 1);
+
     const user = new User({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         username: req.body.username,
         email: req.body.email,
-        password: req.body.password,
+        password: hashedPassword,
         createdAt: req.body.createdAt,
     });
 
@@ -24,44 +43,38 @@ const createUser = async (req, res) => {
     }
 };
 
-const updateUser = async (req, res) => {
+const ForgetPassword = async (req, res) => {
     try {
-        console.log(`Updating`);
-        const updatedUser = await User.findOneAndUpdate(
-            { _id: req.params.userID },
-            {
-                $set: {
-                    first_name: req.body.first_name,
-                    last_name: req.body.last_name,
-                    user_name: req.body.user_name,
-                    email: req.body.email,
-                    password: req.body.password,
-                    createdAt: req.body.createdAt,
-                },
-            },
-            { new: true }
-        );
-        console.log(`Updated`);
-        res.json(updatedUser);
-    } catch (err) {
-        console.log(`Not Updated`);
-        res.send(err);
-    }
-};
+        const { username, oldPassword, newPassword } = req.body;
 
-const deleteUser = async (req, res) => {
-    try {
-        console.log("Deleteing");
-        await User.deleteOne({ _id: req.params.userID });
-        res.json({ message: `User ${req.params.userID} Deleted` });
+        const requestedUser = await User.findOne({ username }).exec();
+        if (!requestedUser) {
+            return res.json({ accepted: false, reason: "Invalid Username" });
+        }
+
+        const match = await bcrypt.compare(oldPassword, requestedUser.password);
+        if (match) {
+            const hashedPassword = await bcrypt.hash(newPassword, 1);
+            const updatedUser = await User.findOneAndUpdate(
+                { _id: requestedUser._id },
+                {
+                    $set: {
+                        password: hashedPassword,
+                    },
+                }
+            );
+            res.json({ accepted: true, user: updatedUser });
+        } else {
+            res.json({ accepted: false, reason: "Incorrect Password" });
+        }
     } catch (err) {
-        res.send(err);
+        console.log(err);
+        res.status(500).send(err);
     }
 };
 
 module.exports = {
-    getUsers,
-    createUser,
-    updateUser,
-    deleteUser,
+    Login,
+    Register,
+    ForgetPassword,
 };
