@@ -24,22 +24,28 @@ const Login = async (req, res) => {
 };
 
 const Register = async (req, res) => {
-    const hashedPassword = await bcrypt.hash(req.body.password, 1);
-
-    const user = new User({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        username: req.body.username,
-        email: req.body.email,
-        password: hashedPassword,
-        createdAt: req.body.createdAt,
-    });
-
     try {
+        // Check if user already exists
+        const existingUser = await User.findOne({ username: req.body.username }).exec();
+        if (existingUser) {
+            return res.status(400).json({ message: "Username already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(req.body.password, 1);
+
+        const user = new User({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            username: req.body.username,
+            email: req.body.email,
+            password: hashedPassword,
+            createdAt: req.body.createdAt,
+        });
+
         const savedUser = await user.save();
         res.json(savedUser);
     } catch (err) {
-        res.send(err);
+        res.status(500).json({ message: "Error registering user", error: err });
     }
 };
 

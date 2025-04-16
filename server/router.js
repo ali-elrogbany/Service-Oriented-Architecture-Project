@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const { Login, Register, ForgetPassword } = require("./controllers/User");
 const TransactionController = require("./controllers/Transaction");
-const CourierController = require("./controllers/CourierController");
+const CourierController = require("./controllers/Courier");
 
 router.get("/", (req, res) => {
     res.send("Let's build a CRUD API!");
