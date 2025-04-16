@@ -1,10 +1,16 @@
 const Transaction = require("../models/Transaction");
+const { sendNotification } = require('../utils/notification');
 
 const createTransaction = async (req, res) => {
     try {
-        const { userId, amount, type, description } = req.body;
+        const { userId, amount, type, description, email } = req.body;
         const transaction = new Transaction({ userId, amount, type, description });
         const saved = await transaction.save();
+        await sendNotification(
+            email,
+            'Transaction Completed',
+            `Hi, your transaction of $${amount} was successfully processed.`
+          );
         res.status(201).json(saved);
     } catch (err) {
         res.status(500).json({ error: "Failed to create transaction", details: err });
