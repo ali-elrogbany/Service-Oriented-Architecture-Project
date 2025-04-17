@@ -1,15 +1,27 @@
 const Courier = require("../models/Courier");
-const { logAction } = require('./auditLogController'); // Import logAction for logging
+const { logAction } = require("./AuditLog"); // Import logAction for logging
 
-// Create a new courier
+const getAllCouriers = async (req, res) => {
+    try {
+        const couriers = await Courier.find().sort({ createdAt: -1 });
+        res.status(200).json(couriers);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch couriers", details: err });
+    }
+};
+
 const createCourier = async (req, res) => {
     try {
-        const { name, phoneNumber, status, paymentPreferences } = req.body;
-        const courier = new Courier({ name, phoneNumber, status, paymentPreferences });
+        const { name, phoneNumber, status, userId } = req.body;
+        const courier = new Courier({ name, phoneNumber, status });
         const saved = await courier.save();
 
-        // Log the courier creation
-        await logAction('Courier Created', req.user._id, { name, phoneNumber, status, paymentPreferences });
+        try {
+            // Log the courier creation
+            await logAction("Courier Created", userId);
+        } catch (err) {
+            console.log(err);
+        }
 
         res.status(201).json(saved);
     } catch (err) {
@@ -35,14 +47,14 @@ const getCourierById = async (req, res) => {
 const updateCourier = async (req, res) => {
     try {
         const { id } = req.params;
-        const updates = req.body;
-        const updatedCourier = await Courier.findByIdAndUpdate(id, updates, { new: true });
+        const { name, phoneNumber, status, userId } = req.body;
+        const updatedCourier = await Courier.findByIdAndUpdate(id, { name, phoneNumber, status }, { new: true });
         if (!updatedCourier) {
             return res.status(404).json({ error: "Courier not found" });
         }
 
         // Log the courier update
-        await logAction('Courier Updated', req.user._id, { id, updates });
+        await logAction("Courier Updated", userId);
 
         res.status(200).json(updatedCourier);
     } catch (err) {
@@ -54,13 +66,18 @@ const updateCourier = async (req, res) => {
 const deleteCourier = async (req, res) => {
     try {
         const { id } = req.params;
+        const { userId } = req.body;
         const deleted = await Courier.findByIdAndDelete(id);
         if (!deleted) {
             return res.status(404).json({ error: "Courier not found" });
         }
 
-        // Log the courier deletion
-        await logAction('Courier Deleted', req.user._id, { id });
+        try {
+            // Log the courier deletion
+            await logAction("Courier Deleted", userId);
+        } catch (err) {
+            console.log(err);
+        }
 
         res.status(200).json({ message: "Courier deleted successfully" });
     } catch (err) {
@@ -69,6 +86,7 @@ const deleteCourier = async (req, res) => {
 };
 
 module.exports = {
+    getAllCouriers,
     createCourier,
     getCourierById,
     updateCourier,

@@ -1,27 +1,24 @@
 const mongoose = require("mongoose");
 
-const CourierTransactionSchema = new mongoose.Schema({
-    courierId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Courier",
-        required: true,
-    },
-    amount: {
-        type: Number,
-        required: true,
-    },
-    type: {
+const CourierSchema = new mongoose.Schema({
+    name: {
         type: String,
-        enum: ["credit", "debit"],
         required: true,
     },
-    description: {
+    phoneNumber: {
         type: String,
+        required: true,
     },
-    timestamp: {
+    status: {
+        type: String,
+        enum: ["active", "inactive"],
+        default: "active",
+        required: true,
+    },
+    createdAt: {
         type: Date,
         default: Date.now,
     },
 });
 
-module.exports = mongoose.model("CourierTransaction", CourierTransactionSchema);
+module.exports = mongoose.model("Courier", CourierSchema);

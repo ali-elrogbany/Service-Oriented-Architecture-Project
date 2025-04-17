@@ -13,7 +13,7 @@ const Login = async (req, res) => {
 
         const match = await bcrypt.compare(password, requestedUser.password);
         if (match) {
-            res.json({ authenticated: true });
+            res.json({ authenticated: true, userId: requestedUser._id, email: requestedUser.email });
         } else {
             res.json({ authenticated: false, reason: "Incorrect Password" });
         }

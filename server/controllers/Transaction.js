@@ -1,6 +1,6 @@
 const Transaction = require("../models/Transaction");
-const { sendNotification } = require('../utils/notification');
-const { logAction } = require('./auditLogController'); // Add this import to use the logging function
+const { sendNotification } = require("../utils/notification");
+const { logAction } = require("./AuditLog"); // Add this import to use the logging function
 
 const createTransaction = async (req, res) => {
     try {
@@ -8,21 +8,15 @@ const createTransaction = async (req, res) => {
         const transaction = new Transaction({ userId, amount, type, description });
         const saved = await transaction.save();
 
-        // Send notification to the user
-        await sendNotification(
-            email,
-            'Transaction Completed',
-            `Hi, your transaction of $${amount} was successfully processed.`
-        );
+        try {
+            await sendNotification(email, "Transaction Completed", `Hi, your transaction of $${amount} was successfully processed.`);
+        } catch (err) {
+            console.log(err);
+        }
 
         // Log the transaction creation action
-        await logAction('Transaction Created', userId, {
-            amount,
-            type,
-            description
-        }); // This logs the transaction details
+        await logAction("Transaction Created", userId); // This logs the transaction details
 
-        // Send the saved transaction back as a response
         res.status(201).json(saved);
     } catch (err) {
         res.status(500).json({ error: "Failed to create transaction", details: err });
