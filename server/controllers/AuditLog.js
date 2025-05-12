@@ -10,33 +10,30 @@ const logAction = (action, userId) => {
     newLog.save();
 };
 
-// Get all audit logs
-const getAllAuditLogs = async (req, res) => {
+const getAllAuditLogs = async (request, reply) => {
     try {
         const logs = await AuditLog.find().populate("user_id", "username email").sort({ timestamp: -1 });
-        res.json(logs);
+        return reply.send(logs);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return reply.status(500).send({ message: error.message });
     }
 };
 
-// Get audit logs for a specific user
-const getUserAuditLogs = async (req, res) => {
+const getUserAuditLogs = async (request, reply) => {
     try {
-        const logs = await AuditLog.find({ user_id: req.params.userId }).populate("user_id", "username email").sort({ timestamp: -1 });
-        res.json(logs);
+        const logs = await AuditLog.find({ user_id: request.params.userId }).populate("user_id", "username email").sort({ timestamp: -1 });
+        return reply.send(logs);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return reply.status(500).send({ message: error.message });
     }
 };
 
-// Get audit logs by action type
-const getAuditLogsByAction = async (req, res) => {
+const getAuditLogsByAction = async (request, reply) => {
     try {
-        const logs = await AuditLog.find({ action: req.params.action }).populate("user_id", "username email").sort({ timestamp: -1 });
-        res.json(logs);
+        const logs = await AuditLog.find({ action: request.params.action }).populate("user_id", "username email").sort({ timestamp: -1 });
+        return reply.send(logs);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return reply.status(500).send({ message: error.message });
     }
 };
 

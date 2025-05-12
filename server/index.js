@@ -1,35 +1,39 @@
-const express = require("express");
-const cors = require("cors");
-const router = require("./router");
+const fastify = require("fastify")({ logger: true, ignoreTrailingSlash: true });
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+
+// Register CORS
+fastify.register(require("@fastify/cors"), {
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+});
 
 dotenv.config();
 
 const PORT = 8000;
 
-const app = express();
-
-app.listen(PORT, async () => {
-    console.log(`server up on port ${PORT}`);
-});
-
-//should be added before express bytargem el data bt3t el post for decoding
-app.use(cors());
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-app.use(router);
+fastify.register(require("./router"));
 
 mongoose
     .connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
-    .then(() => {
+    .then(async () => {
         console.log("Connected to MongoDB");
+
+        fastify.listen({ port: PORT }, (err, address) => {
+            if (err) {
+                fastify.log.error(err);
+                process.exit(1);
+            }
+            console.log(`Server Listening at ${address}`);
+        });
     })
     .catch((err) => {
         console.log(err);
+        fastify.log.error(err);
+        process.exit(1);
     });

@@ -2,60 +2,60 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
 
-const Login = async (req, res) => {
+const Login = async (request, reply) => {
     try {
-        const { username, password } = req.body;
+        const { username, password } = request.body;
 
         const requestedUser = await User.findOne({ username }).exec();
         if (!requestedUser) {
-            return res.json({ authenticated: false, reason: "Invalid Username" });
+            return reply.send({ authenticated: false, reason: "Invalid Username" });
         }
 
         const match = await bcrypt.compare(password, requestedUser.password);
         if (match) {
-            res.json({ authenticated: true, userId: requestedUser._id, email: requestedUser.email });
+            return reply.send({ authenticated: true, userId: requestedUser._id, email: requestedUser.email });
         } else {
-            res.json({ authenticated: false, reason: "Incorrect Password" });
+            return reply.send({ authenticated: false, reason: "Incorrect Password" });
         }
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err);
+        request.log.error(err);
+        return reply.status(500).send(err);
     }
 };
 
-const Register = async (req, res) => {
+const Register = async (request, reply) => {
     try {
         // Check if user already exists
-        const existingUser = await User.findOne({ username: req.body.username }).exec();
+        const existingUser = await User.findOne({ username: request.body.username }).exec();
         if (existingUser) {
-            return res.status(400).json({ message: "Username already exists" });
+            return reply.status(400).send({ message: "Username already exists" });
         }
 
-        const hashedPassword = await bcrypt.hash(req.body.password, 1);
+        const hashedPassword = await bcrypt.hash(request.body.password, 1);
 
         const user = new User({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            username: req.body.username,
-            email: req.body.email,
+            firstName: request.body.firstName,
+            lastName: request.body.lastName,
+            username: request.body.username,
+            email: request.body.email,
             password: hashedPassword,
-            createdAt: req.body.createdAt,
+            createdAt: request.body.createdAt,
         });
 
         const savedUser = await user.save();
-        res.json(savedUser);
+        return reply.send(savedUser);
     } catch (err) {
-        res.status(500).json({ message: "Error registering user", error: err });
+        return reply.status(500).send({ message: "Error registering user", error: err });
     }
 };
 
-const ForgetPassword = async (req, res) => {
+const ForgetPassword = async (request, reply) => {
     try {
-        const { username, oldPassword, newPassword } = req.body;
+        const { username, oldPassword, newPassword } = request.body;
 
         const requestedUser = await User.findOne({ username }).exec();
         if (!requestedUser) {
-            return res.json({ accepted: false, reason: "Invalid Username" });
+            return reply.send({ accepted: false, reason: "Invalid Username" });
         }
 
         const match = await bcrypt.compare(oldPassword, requestedUser.password);
@@ -69,13 +69,13 @@ const ForgetPassword = async (req, res) => {
                     },
                 }
             );
-            res.json({ accepted: true, user: updatedUser });
+            return reply.send({ accepted: true, user: updatedUser });
         } else {
-            res.json({ accepted: false, reason: "Incorrect Password" });
+            return reply.send({ accepted: false, reason: "Incorrect Password" });
         }
     } catch (err) {
-        console.log(err);
-        res.status(500).send(err);
+        request.log.error(err);
+        return reply.status(500).send(err);
     }
 };
 

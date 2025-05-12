@@ -1,18 +1,18 @@
 const Courier = require("../models/Courier");
 const { logAction } = require("./AuditLog"); // Import logAction for logging
 
-const getAllCouriers = async (req, res) => {
+const getAllCouriers = async (request, reply) => {
     try {
         const couriers = await Courier.find().sort({ createdAt: -1 });
-        res.status(200).json(couriers);
+        return reply.status(200).send(couriers);
     } catch (err) {
-        res.status(500).json({ error: "Failed to fetch couriers", details: err });
+        return reply.status(500).send({ error: "Failed to fetch couriers", details: err });
     }
 };
 
-const createCourier = async (req, res) => {
+const createCourier = async (request, reply) => {
     try {
-        const { name, phoneNumber, status, userId } = req.body;
+        const { name, phoneNumber, status, userId } = request.body;
         const courier = new Courier({ name, phoneNumber, status });
         const saved = await courier.save();
 
@@ -20,68 +20,68 @@ const createCourier = async (req, res) => {
             // Log the courier creation
             await logAction("Courier Created", userId);
         } catch (err) {
-            console.log(err);
+            request.log.error(err);
         }
 
-        res.status(201).json(saved);
+        return reply.status(201).send(saved);
     } catch (err) {
-        res.status(500).json({ error: "Failed to create courier", details: err });
+        return reply.status(500).send({ error: "Failed to create courier", details: err });
     }
 };
 
 // Get a courier by ID
-const getCourierById = async (req, res) => {
+const getCourierById = async (request, reply) => {
     try {
-        const { id } = req.params;
+        const { id } = request.params;
         const courier = await Courier.findById(id);
         if (!courier) {
-            return res.status(404).json({ error: "Courier not found" });
+            return reply.status(404).send({ error: "Courier not found" });
         }
-        res.status(200).json(courier);
+        return reply.status(200).send(courier);
     } catch (err) {
-        res.status(500).json({ error: "Failed to fetch courier", details: err });
+        return reply.status(500).send({ error: "Failed to fetch courier", details: err });
     }
 };
 
 // Update an existing courier
-const updateCourier = async (req, res) => {
+const updateCourier = async (request, reply) => {
     try {
-        const { id } = req.params;
-        const { name, phoneNumber, status, userId } = req.body;
+        const { id } = request.params;
+        const { name, phoneNumber, status, userId } = request.body;
         const updatedCourier = await Courier.findByIdAndUpdate(id, { name, phoneNumber, status }, { new: true });
         if (!updatedCourier) {
-            return res.status(404).json({ error: "Courier not found" });
+            return reply.status(404).send({ error: "Courier not found" });
         }
 
         // Log the courier update
         await logAction("Courier Updated", userId);
 
-        res.status(200).json(updatedCourier);
+        return reply.status(200).send(updatedCourier);
     } catch (err) {
-        res.status(500).json({ error: "Failed to update courier", details: err });
+        return reply.status(500).send({ error: "Failed to update courier", details: err });
     }
 };
 
 // Delete a courier
-const deleteCourier = async (req, res) => {
+const deleteCourier = async (request, reply) => {
     try {
-        const { id } = req.params;
-        const { userId } = req.body;
+        const { id } = request.params;
+        const { userId } = request.body;
         const deleted = await Courier.findByIdAndDelete(id);
         if (!deleted) {
-            return res.status(404).json({ error: "Courier not found" });
+            return reply.status(404).send({ error: "Courier not found" });
         }
 
         try {
             // Log the courier deletion
             await logAction("Courier Deleted", userId);
         } catch (err) {
-            console.log(err);
+            request.log.error(err);
         }
 
-        res.status(200).json({ message: "Courier deleted successfully" });
+        return reply.status(200).send({ message: "Courier deleted successfully" });
     } catch (err) {
-        res.status(500).json({ error: "Failed to delete courier", details: err });
+        return reply.status(500).send({ error: "Failed to delete courier", details: err });
     }
 };
 

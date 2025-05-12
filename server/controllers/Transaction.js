@@ -2,9 +2,9 @@ const Transaction = require("../models/Transaction");
 const { sendNotification } = require("../utils/notification");
 const { logAction } = require("./AuditLog"); // Add this import to use the logging function
 
-const createTransaction = async (req, res) => {
+const createTransaction = async (request, reply) => {
     try {
-        const { userId, amount, type, description, email } = req.body;
+        const { userId, amount, type, description, email } = request.body;
         const transaction = new Transaction({ userId, amount, type, description });
         const saved = await transaction.save();
 
@@ -17,32 +17,32 @@ const createTransaction = async (req, res) => {
         // Log the transaction creation action
         await logAction("Transaction Created", userId); // This logs the transaction details
 
-        res.status(201).json(saved);
+        return reply.status(201).send(saved);
     } catch (err) {
-        res.status(500).json({ error: "Failed to create transaction", details: err });
+        return reply.status(500).send({ error: "Failed to create transaction", details: err });
     }
 };
 
-const getUserTransactions = async (req, res) => {
+const getUserTransactions = async (request, reply) => {
     try {
-        const { userId } = req.params;
+        const { userId } = request.params;
         const transactions = await Transaction.find({ userId }).sort({ timestamp: -1 });
-        res.status(200).json(transactions);
+        return reply.status(200).send(transactions);
     } catch (err) {
-        res.status(500).json({ error: "Failed to retrieve transactions", details: err });
+        return reply.status(500).send({ error: "Failed to retrieve transactions", details: err });
     }
 };
 
-const getTransactionById = async (req, res) => {
+const getTransactionById = async (request, reply) => {
     try {
-        const { transactionId } = req.params;
+        const { transactionId } = request.params;
         const transaction = await Transaction.findById(transactionId);
         if (!transaction) {
-            return res.status(404).json({ error: "Transaction not found" });
+            return reply.status(404).send({ error: "Transaction not found" });
         }
-        res.status(200).json(transaction);
+        return reply.status(200).send(transaction);
     } catch (err) {
-        res.status(500).json({ error: "Failed to fetch transaction", details: err });
+        return reply.status(500).send({ error: "Failed to fetch transaction", details: err });
     }
 };
 
