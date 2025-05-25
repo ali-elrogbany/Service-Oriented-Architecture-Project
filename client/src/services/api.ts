@@ -128,4 +128,34 @@ export const auditLogService = {
     },
 };
 
+// Settlement Services
+export const settlementService = {
+    createSettlement: async (settlementData: { courierId: string; periodStart: Date; periodEnd: Date; paymentMethod: "BANK_TRANSFER" | "CASH" | "MOBILE_WALLET"; paymentDetails: object; userId: string }) => {
+        const response = await api.post("/settlements", settlementData);
+        return response.data;
+    },
+
+    getCourierSettlements: async (courierId: string) => {
+        const response = await api.get(`/settlements/courier/${courierId}`);
+        return response.data;
+    },
+
+    getSettlementDetails: async (id: string) => {
+        const response = await api.get(`/settlements/${id}`);
+        return response.data;
+    },
+
+    updateSettlementStatus: async (
+        id: string,
+        data: {
+            status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+            notes?: string;
+            userId: string;
+        }
+    ) => {
+        const response = await api.put(`/settlements/${id}/status`, data);
+        return response.data;
+    },
+};
+
 export default api;

@@ -62,6 +62,11 @@ export default function Navbar() {
                                     </Link>
                                 </li>
                                 <li className="nav-item">
+                                    <Link href="/settlements" className={`nav-link ${pathname === "/settlements" ? "active fw-semibold" : ""}`}>
+                                        Settlements
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
                                     <Link href="/audit-logs" className={`nav-link ${pathname === "/audit-logs" ? "active fw-semibold" : ""}`}>
                                         Audit Logs
                                     </Link>

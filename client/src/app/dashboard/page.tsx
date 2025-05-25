@@ -109,6 +109,27 @@ export default function Dashboard() {
                                 </div>
                             </Link>
                         </div>
+
+                        {/* Settlements Card */}
+                        <div className="col-12 col-sm-6 col-lg-3">
+                            <Link href="/settlements" className="text-decoration-none">
+                                <div className="card h-100 border-0 shadow-sm hover-shadow">
+                                    <div className="card-body p-4">
+                                        <div className="d-flex align-items-center">
+                                            <div className="bg-purple rounded p-3 me-3">
+                                                <svg className="bi text-white" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h3 className="h5 mb-1 text-dark">Settlements</h3>
+                                                <p className="text-muted mb-0">Manage courier settlements</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -119,6 +140,9 @@ export default function Dashboard() {
                 }
                 .hover-shadow:hover {
                     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+                }
+                .bg-purple {
+                    background-color: #6f42c1;
                 }
             `}</style>
         </>
