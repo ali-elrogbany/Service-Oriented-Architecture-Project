@@ -3,6 +3,7 @@ const TransactionController = require("./controllers/Transaction");
 const CourierController = require("./controllers/Courier");
 const { createRefund, getAllRefunds, updateRefundStatus } = require("./controllers/RefundController");
 const { getAllAuditLogs, getUserAuditLogs, getAuditLogsByAction } = require("./controllers/AuditLog");
+const SettlementController = require("./controllers/SettlementController");
 
 async function routes(fastify, options) {
     fastify.get("/", async (request, reply) => {
@@ -35,6 +36,11 @@ async function routes(fastify, options) {
     fastify.get("/audit-logs", getAllAuditLogs);
     fastify.get("/audit-logs/user/:userId", getUserAuditLogs);
     fastify.get("/audit-logs/action/:action", getAuditLogsByAction);
+
+    fastify.post("/settlements", SettlementController.createSettlement);
+    fastify.get("/settlements/courier/:courierId", SettlementController.getCourierSettlements);
+    fastify.get("/settlements/:id", SettlementController.getSettlementDetails);
+    fastify.put("/settlements/:id/status", SettlementController.updateSettlementStatus);
 }
 
 module.exports = routes;
