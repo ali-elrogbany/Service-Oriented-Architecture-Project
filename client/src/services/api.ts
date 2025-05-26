@@ -54,12 +54,12 @@ export const transactionService = {
     },
 
     getUserTransactions: async (userId: string) => {
-        const response = await api.get(`/transactions/${userId}`);
+        const response = await api.get(`/transactions/user/${userId}`);
         return response.data;
     },
 
     getTransactionById: async (transactionId: string) => {
-        const response = await api.get(`/transactions/details/${transactionId}`);
+        const response = await api.get(`/transactions/${transactionId}`);
         return response.data;
     },
 };

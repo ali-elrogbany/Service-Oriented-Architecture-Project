@@ -12,6 +12,7 @@ interface AuditLog {
         email: string;
     };
     timestamp: string;
+    createdAt: string;
 }
 
 const AuditLogs: React.FC = () => {
@@ -57,7 +58,7 @@ const AuditLogs: React.FC = () => {
                 <tbody>
                     {logs.map((log) => (
                         <tr key={log._id}>
-                            <td>{formatDate(log.timestamp)}</td>
+                            <td>{formatDate(log.timestamp || log.createdAt) || "-"}</td>
                             <td>{log.action}</td>
                             <td>
                                 {log.user_id?.username || "Unknown User"}

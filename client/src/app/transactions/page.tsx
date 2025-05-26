@@ -12,7 +12,8 @@ interface Transaction {
     amount: number;
     type: string;
     description: string;
-    timestamp: string;
+    timestamp?: string;
+    createdAt: string;
 }
 
 export default function TransactionsPage() {
@@ -115,7 +116,7 @@ export default function TransactionsPage() {
                                         <tbody>
                                             {transactions.map((transaction) => (
                                                 <tr key={transaction._id}>
-                                                    <td>{formatDate(transaction.timestamp)}</td>
+                                                    <td>{formatDate(transaction.createdAt)}</td>
                                                     <td>
                                                         <span className={`badge ${transaction.type === "credit" ? "bg-success" : "bg-danger"}`}>{transaction.type}</span>
                                                     </td>
